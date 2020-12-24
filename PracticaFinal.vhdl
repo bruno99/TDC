@@ -6,7 +6,7 @@ entity Maquina_Expendedora is
 port(
 CLK : in std_logic; --Clock
 RESET: in std_logic;
-COIN_IN in std_logic_vector( 2 downto 0); --3 bits porque maximo entra 5 (101)
+COIN_IN in std_logic_vector( 2 downto 0); --3 bits porque maximo entra 6 (101)
 COIN_OUT: out std_logic_vector( 2 downto 0);  --3 bits porque maximo sale 4 de cambio si el cliente mete 1 y luego 5 (100)
 LATA: out std_logic
 );
