@@ -9,6 +9,7 @@ RESET: in std_logic;
 RESET_STOCK: in std_logic;
 COIN_IN in std_logic_vector( 2 downto 0); --3 bits porque maximo entra 6 (101)
 COIN_OUT: out std_logic_vector( 2 downto 0);  --3 bits porque maximo sale 4 de cambio si el cliente mete 1 y luego 5 (100)
+COUNT : out std_logic_vector(width-1 DOWNTO 0);  
 LATA: out std_logic;
 EMPTY: out std_logic --lo metemos como salida porque queremos usarlo como un led que avise del stock
 );
@@ -17,7 +18,7 @@ end Maquina_Expendedora;
 architecture Behavioral of Maquina_Expendedora is
   type estados is (s0,s1,s2);
   signal estado, estado_siguiente : estados; 
-	signal count : UNSIGNED(width-1 DOWNTO 0);--2 bits porque va de 0 a 3
+	signal cnt : UNSIGNED(width-1 DOWNTO 0);--2 bits porque va de 0 a 3
   
 
 begin
@@ -35,7 +36,7 @@ begin
     end if;
   end process;
 
- process(COIN_IN,COIN_OUT, count, LATA, EMPTY, estado, estado_siguiente) begin
+ process(COIN_IN,COIN_OUT, cnt, LATA, EMPTY, COUNT, estado, estado_siguiente) begin
    if (count = "11")--si el stock llega al tope
      EMPTY <= '1';
    end if;
@@ -65,10 +66,11 @@ begin
                end if;
              end if;    
              LATA <= '1';--Se activa y recibe la lata
-             count <= count + 1;--se actualiza el stock
+             cnt <= cnt + 1;--se actualiza el stock
              RESET <= '1';--para que la maquina vuelva al estado inicial
           when others => null;--para casos excepcionales
       end case;
       end if;
+        COUNT <= std_logic_vector(cnt);--se pasa la informacion de la señal a la salida para ver el stock
  end process;
-end Behavioral;
+end Behavioral;      
