@@ -14,27 +14,28 @@ end tb_Maquina_Expendedora;
 CLK : in std_logic; --Clock
 RESET: in std_logic;
 RESET_STOCK: in std_logic;
-COIN_IN in std_logic_vector( 2 downto 0); 
+COIN_IN: in std_logic_vector( 2 downto 0); 
 COIN_OUT: out std_logic_vector( 2 downto 0); 
 LATA: out std_logic;
-EMPTY: out std_logic
-COUNT: out std_logic_vector(width-1 DOWNTO 0);  
+EMPTY: out std_logic;
+COUNT : out std_logic_vector(1 DOWNTO 0)
 );
     end component;
    
     -- Definir señales
     signal CLK, RESET, RESET_STOCK: std_logic;
-    signal COIN_IN in std_logic_vector( 2 downto 0); 
-    signal COIN_OUT: out std_logic_vector( 2 downto 0); 
-    signal LATA: out std_logic;
-    signal EMPTY: out std_logic;
-    signal COUNT: out std_logic_vector(width-1 DOWNTO 0);  
+    signal COIN_IN:  std_logic_vector( 2 downto 0); 
+    signal COIN_OUT:  std_logic_vector( 2 downto 0); 
+    signal LATA:  std_logic;
+    signal EMPTY:  std_logic;
+    signal COUNT: std_logic_vector(1 DOWNTO 0);  
     
+  begin
     -- Instanciamos tb_Maquina_Expendedora
-    DUT : tb_Maquina_Expendedora port map(
+    DUT: Maquina_Expendedora port map(
         CLK   => CLK,
-        RESET  => RESET,
-        RESET_STOCK => RESET_STOCK,
+        RESET =>RESET,
+        RESET_STOCK =>RESET_STOCK,
         COIN_IN  => COIN_IN,
         COIN_OUT => COIN_OUT,
         LATA =>LATA,
@@ -43,7 +44,6 @@ COUNT: out std_logic_vector(width-1 DOWNTO 0);
        
     );
    
-begin
   process begin 
     RESET <= '0'; wait;
 end process;
@@ -51,18 +51,17 @@ end process;
     RESET_STOCK <= '0'; wait;
 end process;     
         
-     process(CLK)
+     process
    begin
-     --PROBAMOS TODAS LAS POSIBILIDADES
-    
+     --PROBAMOS TODAS LAS POSIBILIDADES 
     --El contador saldría con el stock restante
-    COIN_IN <= "001";  wait 10 ns;    --LATA será 0 y COIN_OUT será 0 a la espera de más órdenes
-    COIN_IN <= "010";  wait 10 ns;    --LATA será 1 y COIN_OUT será 0
-    COIN_IN <= "011";  wait 10 ns;    --LATA será 1 y COIN_OUT será 1
-    COIN_IN <= "100";  wait 10 ns;    --LATA será 1 y COIN_OUT será 2
+    COIN_IN <= "001";  wait for 10 ns;    --LATA será 0 y COIN_OUT será 0 a la espera de más órdenes
+    COIN_IN <= "010";  wait for 10 ns;    --LATA será 1 y COIN_OUT será 0
+    COIN_IN <= "011";  wait for 10 ns;    --LATA será 1 y COIN_OUT será 1
+    COIN_IN <= "100";  wait for 10 ns;    --LATA será 1 y COIN_OUT será 2
     RESET_STOCK <='1'; -- Reseteamos el stock para que se puedan vender mas latas
-    COIN_IN <= "101";  wait 10 ns;    --LATA será 1 y COIN_OUT será 3
-    COIN_IN <= "110";  wait 10 ns;    --LATA será 1 y COIN_OUT será 4
+    COIN_IN <= "101";  wait for 10 ns;    --LATA será 1 y COIN_OUT será 3
+    COIN_IN <= "110";  wait;    --LATA será 1 y COIN_OUT será 4
 
    
         end process;
