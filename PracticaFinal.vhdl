@@ -1,3 +1,4 @@
+  
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -6,7 +7,7 @@ entity Maquina_Expendedora is
 port(
 CLK : in std_logic; --Clock
 RESET: in std_logic;
-COIN_IN in std_logic_vector( 2 downto 0); --3 bits porque maximo entra 6 (101)
+COIN_IN: in std_logic_vector( 2 downto 0); --3 bits porque maximo entra 6 (101)
 COIN_OUT: out std_logic_vector( 2 downto 0);  --3 bits porque maximo sale 4 de cambio si el cliente mete 1 y luego 5 (100)
 LATA: out std_logic
 );
@@ -26,29 +27,32 @@ begin
     end if;
   end process;
 
- process(COIN_IN,COIN_OUT,LATA, estado, estado_siguiente) begin
+ process(COIN_IN, estado, estado_siguiente) begin
       case (estado) is
           when s0 =>
              if(COIN_IN = "001") then estado_siguiente <= s1; --1€ metido va al s1 a la espera de más dinero
-               else if (COIN_IN != "001") then estado_siguiente <= s2;--Cualquier cantidad distinta a 1€ lleva al estado 2, donde dependiendo de la cantidad se verá                
+               else  estado_siguiente <= s2;--Cualquier cantidad distinta a 1€ lleva al estado 2, donde dependiendo de la cantidad se verá                
               end if;
           when s1 =>   
-             if(COIN_IN = "001") then estado_siguiente <= s2;--si se mete otro 1€ el total son 2€
-               else if(COIN_IN = "010") then COIN_IN <= "011" & estado_siguiente <= s2; --si se mete otro 2€ el total son 3€
-                 else if(COIN_IN = "101") then COIN_IN <= "110" & estado_siguiente <= s2;--si se mete otro 5€ el total son 6€ 
-                   else if (RESET = '1') then COIN_OUT <= "001" & estado_siguiente <= s0;;--si se anula se devuelve 1€
+             if(COIN_IN = "001") then --si se mete otro 1€ el total son 2€ sin cambio
+             COIN_OUT <= "000";
+             LATA <= '1';
+               else if(COIN_IN = "010") then --si se mete otro 2€ el total son 3€ y se devuelve 1€
+               COIN_OUT <= "001"; 
+               LATA <= '1';
+                 else if(COIN_IN = "101") then --si se mete otro 5€ el total son 6€ y se devuelven 4€
+                 COIN_OUT <= "100";
+                  LATA <= '1';
+                   else if (RESET = '1') then COIN_OUT <= "001" ;--si se anula se devuelve 1€
                    end if;
                  end if;
                 end if;
+               end if;
           when s2 =>
              if(COIN_IN = "010") then COIN_OUT <= "000";  --Si lo introducido es justo se devuelven 0€
-               else if(COIN_IN = "011")then COIN_OUT <= "001";  --Si lo introducido es 3€ se devuelven 1€
                  else if(COIN_IN = "101")then COIN_OUT <= "011";--Si lo introducido es 5€ se devuelven 3€
-                  else if(COIN_IN = "110")then COIN_OUT <= "100";--Si lo introducido es 6€ se devuelven 4€
-                  end if;
-                 end if;   
-               end if;
-             end if;    
+                 end if;       
+                 end if;    
              LATA <= '1';--Se activa y recibe la lata
           when others => null;--para casos excepcionales
       end case;
