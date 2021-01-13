@@ -17,9 +17,9 @@ end Maquina_Expendedora;
 
 architecture Behavioral of Maquina_Expendedora is
   type estados is (s0,s1,s2);
-  signal estado, estado_siguiente : estados; 
+    signal estado, estado_siguiente : estados; 
 	signal cnt : UNSIGNED (1 DOWNTO 0);--2 bits porque va de 0 a 3
-  signal coin : UNSIGNED(2 downto 0);
+    signal coin : UNSIGNED(2 downto 0);
 
 begin
 
@@ -42,36 +42,33 @@ begin
      COIN_OUT <= coin; --si el usuario mete dinero sin stock se le devuelve automaticamente
     else --si hay stock la maquina funciona con normalidad
       case (estado) is
-          when s0 =>
-             if(coin = "001") then estado_siguiente <= s1; --1€ metido va al s1 a la espera de más dinero
-               else estado_siguiente <= s2;--Cualquier cantidad distinta a 1€ lleva al estado 2, donde dependiendo de la cantidad se verá                
+    when s0 =>
+             if(COIN_IN = "001") then estado_siguiente <= s1; --1€ metido va al s1 a la espera de más dinero
+               else  estado_siguiente <= s2;--Cualquier cantidad distinta a 1€ lleva al estado 2, donde dependiendo de la cantidad se verá                
               end if;
           when s1 =>   
-             if(coin = "001") then 
-             coin <= "010";
-             estado_siguiente <= s2;--si se mete otro 1€ el total son 2€
-               else if(coin = "010") then 
-               coin <= "011";
-               estado_siguiente <= s2; --si se mete otro 2€ el total son 3€
-                 else if(coin = "101") then
-                 coin <= "110";
-                 estado_siguiente <= s2;--si se mete otro 5€ el total son 6€ 
-                   else if (RESET = '1') then
-                   COIN_OUT <= "001";
-                   estado_siguiente <= s0;--si se anula se devuelve 1€
+             if(COIN_IN = "001") then --si se mete otro 1€ el total son 2€ sin cambio
+             COIN_OUT <= "000";
+             LATA <= '1';
+             cnt <= cnt + 1;--se actualiza el stock
+               else if(COIN_IN = "010") then --si se mete otro 2€ el total son 3€ y se devuelve 1€
+               COIN_OUT <= "001"; 
+               LATA <= '1';
+               cnt <= cnt + 1;--se actualiza el stock
+                 else if(COIN_IN = "101") then --si se mete otro 5€ el total son 6€ y se devuelven 4€
+                 COIN_OUT <= "100";
+                  LATA <= '1';
+                  cnt <= cnt + 1;--se actualiza el stock
+                   else if (RESET = '1') then COIN_OUT <= "001" ;--si se anula se devuelve 1€
                    end if;
                  end if;
                 end if;
-                end if;
-          when s2 =>
-             if(coin = "010") then coin <= "000";  --Si lo introducido es justo se devuelven 0€
-               else if(coin = "011")then coin <= "001";  --Si lo introducido es 3€ se devuelven 1€
-                 else if(coin = "101")then coin <= "011";--Si lo introducido es 5€ se devuelven 3€
-                  else if(coin = "110")then coin <= "100";--Si lo introducido es 6€ se devuelven 4€
-                  end if;
-                 end if;   
                end if;
-             end if;    
+          when s2 =>
+             if(COIN_IN = "010") then COIN_OUT <= "000";  --Si lo introducido es justo se devuelven 0€
+                 else if(COIN_IN = "101")then COIN_OUT <= "011";--Si lo introducido es 5€ se devuelven 3€
+                 end if;       
+                 end if;    
              LATA <= '1';--Se activa y recibe la lata
              cnt <= cnt + 1;--se actualiza el stock
           when others => null;--para casos excepcionales
