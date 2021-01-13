@@ -18,7 +18,7 @@ architecture Behavioral of Maquina_Expendedora is
 
 begin
 
- process (CLK) begin
+ process (CLK,RESET) begin
     if(RESET='1') then
       estado <= s0;
     elsif rising_edge(CLK) then
